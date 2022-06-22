@@ -1,34 +1,39 @@
-const express = require("express"); // esta linea me la quiere cambiar a un import
-const { Router } = express;
+import { Router } from 'express'
+import fs from 'fs'
+import { Contenedor } from './index.js'
 
-const router = Router();
+export const router = Router()
 
-const productos = [];
+const db = JSON.parse(fs.readFileSync('./productos.json', 'utf-8'))
+
+const prods = new Contenedor(db)
+
+//# Creando rutas
+router
+	.route('/productos')
+	.get((req, res) => {
+		const getAll = prods.getAll()
+		res.send(getAll)
+	})
+	.post((req, res) => {
+		const { tittle, price, thumbnail } = req.body
+
+		const saveProd = prods.save({ tittle, price, thumbnail })
+		res.send(saveProd)
+	})
 
 router
-  .route("/.productos")
-
-  .get((req, res) => {
-    res.send(productos);
-  })
-
-  appp.get('/api/productos/:id'(req, res))
-  console.log (req.params.id)
-
-  app.post((req, res) => {
-    const productos = req.body;
-    productos.push(productos);
-    res.sendStatus(201); //201 La petición ha sido completada y ha resultado en la creación de un nuevo recurso.
-  });
-
-  app.delete('/api/productos/:id'(req, res)  => {
-
-    res.send(req.body),
-    req.json({
-      result:"ok",
-      id: req.params.id
-    })
-  })
+	.route('/productos/:id')
+	.get((req, res) => {
+		const idProd = req.params.id
+		const getById = prods.getById(Number(idProd))
+		res.send(getById)
+	})
+	.delete((req, res) => {
+		const idRemoved = req.params.id
+		const deleteById = prods.deleteById(Number(idRemoved))
+		res.send('el id eliminado es:' + idRemoved)
+	})
 
 
-  module.exports = router;
+
